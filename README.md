@@ -1,6 +1,8 @@
-# gulp-dot-precompiler
+# gulp-dot-precompiler-vergic
 
 Better [Gulp](https://github.com/gulpjs/gulp) plugin for precompilation of [doT](https://github.com/olado/doT) templates. Forked from [titarenko/gulp-dotify](https://github.com/titarenko/gulp-dotify) but with more control and much more logical.
+
+Forked from [kentliau/gulp-dot-precompiler](https://github/kentliau/gulp-dot-precompiler) (which in it's turn was forked from [titarenko/gulp-dotify](https://github.com/titarenko/gulp-dotify), "with more control and much more logical").
 
 ## Status
 
@@ -12,6 +14,11 @@ Better [Gulp](https://github.com/gulpjs/gulp) plugin for precompilation of [doT]
 
 [![NPM](https://nodei.co/npm/gulp-dot-precompiler.png?downloads=true&stars=true)](https://nodei.co/npm/gulp-dot-precompiler/)
 
+## Additions/changes from kentliau/gulp-dot-precompiler
+
+* Updated dependencies
+* Added possibility to use only filename as name (by setting separator to ''), i.e. no patch info
+* Re-compile defs on every init by default.
 
 ## Options
 

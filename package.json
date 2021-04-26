@@ -1,17 +1,18 @@
 {
-  "name": "gulp-dot-precompiler",
+  "name": "gulp-dot-precompiler-vergic",
   "version": "0.3.0",
+  "private": true,
   "description": "Gulp plugins for precompilation of doT template engine.",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive test -R spec -r should && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- --recursive test -R spec -r should && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kentliau/gulp-dot-precompiler.git"
+    "url": "https://github.com/vergic/gulp-dot-precompiler-vergic.git"
   },
   "keywords": [
     "doT",
@@ -25,19 +26,21 @@
   "author": "Kent Liau",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kentliau/gulp-dot-precompiler/issues"
+    "url": "https://github.com/vergic/gulp-dot-precompiler-vergic/issues"
   },
-  "homepage": "https://github.com/kentliau/gulp-dot-precompiler",
+  "homepage": "https://github.com/vergic/gulp-dot-precompiler-vergic",
   "dependencies": {
-    "lodash": "~2.4.1",
-    "dot": "~1.0.2",
-    "through2": "~0.4.0",
-    "gulp-util": "~2.2.12"
+    "doT-vergic": "https://github.com/vergic/doT-vergic/archive/1.1.3-vergic.tar.gz",
+    "gulp-util": "~2.2.20",
+    "lodash": "~4.17.21",
+    "through2": "~2.0.5"
   },
   "devDependencies": {
-    "mocha": "~1.17.0",
-    "should": "~3.0.1",
-    "istanbul": "~0.2.4",
-    "coveralls": "~2.6.1"
+    "coveralls": "~3.1.0",
+    "istanbul": "~0.4.5",
+    "mocha": "~8.3.2",
+    "mocha-lcov-reporter": "^1.3.0",
+    "plugin-error": "^1.0.1",
+    "should": "~13.2.3"
   }
 }

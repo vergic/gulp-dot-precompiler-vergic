@@ -1,32 +1,33 @@
 var through = require('through2');
-var dot = require('dot');
-var gutil = require('gulp-util');
+var dot = require('doT-vergic');
 var _ = require('lodash');
 var path = require('path');
-var PluginError = gutil.PluginError;
+var PluginError = require('plugin-error');
 var fs = require('fs');
 var defs = {};
 
-const PLUGIN_NAME = 'gulp-dot-precompiler';
+var PLUGIN_NAME = 'gulp-dot-precompiler';
 
 function getTemplateName(root, name, extension, separator) {
+  if (separator === '') {
+    return path.basename(name, path.extname(name));
+  }
+
   var parts = name.split(path.sep);
-  if(root.length !== 0 )
-  {
+  if (root.length !== 0) {
     parts.unshift(root);
   }
-  if(extension.length !== 0)
-  {
-    parts[parts.length-1] = parts[parts.length-1] + extension;
+  if (extension.length !== 0) {
+    parts[parts.length - 1] = parts[parts.length - 1] + extension;
   }
   return parts.join(separator);
 }
 
-function getTemplateCode(content,templateSettings,defs) {
+function getTemplateCode(content, templateSettings, defs) {
   var compiled;
   try {
-    compiled = dot.template(content,templateSettings,defs).toString();
-  } catch(err){
+    compiled = dot.template(content, templateSettings, defs).toString();
+  } catch (err) {
     console.log(err);
     return err;
   }
@@ -48,28 +49,38 @@ function readStream(stream, done) {
 function gulpDotify(options) {
   options = options || {};
   _.defaults(options, {
-    root:       '',
-    separator:  '.',
-    extension:  '',
+    root: '',
+    separator: '.',
+    extension: '',
     dictionary: 'render',
+    cacheDefs: false,
 
     //doT.js setting
     templateSettings: {
-      evaluate:       /\{\{([\s\S]+?(\}?)+)\}\}/g,
-      interpolate:    /\{\{=([\s\S]+?)\}\}/g,
-      encode:         /\{\{!([\s\S]+?)\}\}/g,
-      use:            /\{\{#([\s\S]+?)\}\}/g,
-      useParams:      /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-      define:         /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-      defineParams:   /^\s*([\w$]+):([\s\S]+)/,
-      conditional:    /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-      iterate:        /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
-      varname:        'data',
-      strip:          true,
-      append:         true,
-      selfcontained:  false
+      evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
+      interpolate: /\{\{=([\s\S]+?)\}\}/g,
+      encode:      /\{\{!([\s\S]+?)\}\}/g,
+      use:         /\{\{#([\s\S]+?)\}\}/g,
+      useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
+      define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+      defineParams:/^\s*([\w$]+):([\s\S]+)/,
+      conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+      iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+      varname:     "it",
+      strip:		true,
+      append:		true,
+      selfcontained: false,
+      doNotSkipEncoded: false,
+      globalEncodeHTMLFnName: false
     }
   });
+
+  if (!options.cacheDefs) {
+    // Clear defs on init (unless cacheDefs == true)
+    // This will force re-compilation of defined subtemplates on each run (e.g. when this task is ran by a watcher)
+    // Setting cacheDefs = true will mimic old behaviour, should we ever want that...
+    defs = {};
+  }
 
   var stream = through.obj(function (file, enc, callback) {
     var complete = function (error, contents) {
@@ -77,8 +88,8 @@ function gulpDotify(options) {
         throw new PluginError(PLUGIN_NAME, error);
       }
 
-      defs.loadfile = function(include_path) {
-        current_path = (file.path).substr(0, (file.path).lastIndexOf('/')+1 );
+      defs.loadfile = function (include_path) {
+        current_path = (file.path).substr(0, (file.path).lastIndexOf(path.sep) + 1);
         return fs.readFileSync(current_path + include_path);
       };
 
@@ -86,12 +97,11 @@ function gulpDotify(options) {
       var trimmed_ext = relative_path.substr(0, relative_path.lastIndexOf('.')) || relative_path;
 
       var name = getTemplateName(options.root, trimmed_ext, options.extension, options.separator);
-      var code = getTemplateCode(contents,options.templateSettings,defs);
-      if(typeof code !== "string")
-      {
+      var code = getTemplateCode(contents, options.templateSettings, defs);
+      if (typeof code !== 'string') {
         this.emit('error', new PluginError(PLUGIN_NAME, code));
       }
-      file.contents = new Buffer([options.dictionary, '["', name, '"] = ', code, ';'].join(''));
+      file.contents = new Buffer([options.dictionary, '[\'', name, '\'] = ', code, ';'].join(''));
 
       this.push(file);
       return callback();

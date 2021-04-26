@@ -6,7 +6,7 @@ describe('gulp-dot-precompiler', function () {
     var stream = dot();
 
     stream.on('data', function (file) {
-      file.contents.toString().should.equal('render["name"] = function anonymous(data) {\nvar out=\'\';return out;\n};');
+      file.contents.toString().should.equal('render[\'name\'] = function anonymous(it\n) {\nvar out=\'\';return out;\n};');
     });
     stream.once('end', function () {
       done();
